@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroAlerta Cañete</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Librería oficial de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header class="header-logo">
+        <div class="logo-recorte">
+            <img src="logo_agroalerta.jpg" alt="AgroAlerta Cañete - Sistema de Control Agrícola y Trazabilidad" class="logo-principal">
+        </div>
+    </header>
+
+    <main>
+        <!-- Menú de Navegación -->
+        <nav class="menu-tabs">
+            <button class="tab-btn activo" onclick="cambiarPestania(event, 'sec-agricultores')">Agricultores</button>
+            <button class="tab-btn" onclick="cambiarPestania(event, 'sec-parcelas')">Parcelas</button>
+            <button class="tab-btn" onclick="cambiarPestania(event, 'sec-cultivos')">Cultivos</button>
+            <button class="tab-btn" onclick="cambiarPestania(event, 'sec-campanias')">Campañas</button>
+            <button class="tab-btn" onclick="cambiarPestania(event, 'sec-riegos')">Riegos</button>
+            <button class="tab-btn" onclick="cambiarPestania(event, 'sec-gastos')">Gastos</button>
+            <button class="tab-btn" onclick="cambiarPestania(event, 'sec-cosechas')">Cosechas</button>
+            <button class="tab-btn" onclick="cambiarPestania(event, 'sec-ventas')">Ventas</button>
+            <button class="tab-btn" onclick="cambiarPestania(event, 'sec-rentabilidad')">Rentabilidad</button>
+        </nav>
+
+        <!-- Dashboard (3 Indicadores) -->
+        <section class="dashboard">
+            <div class="card">
+                <h3>Total Agricultores</h3>
+                <h2 id="dash-agricultores">0</h2>
+            </div>
+            <div class="card">
+                <h3>Parcelas Registradas</h3>
+                <h2 id="dash-parcelas">0</h2>
+            </div>
+            <div class="card">
+                <h3>Campañas Activas</h3>
+                <h2 id="dash-campanias">0</h2>
+            </div>
+        </section>
+
+        <!-- ================= SECCIÓN AGRICULTORES ================= -->
+        <div id="sec-agricultores" class="pestania-contenido activa">
+            <section class="crud-section">
+                <h2 id="titulo-form-agricultor">Registrar Nuevo Agricultor</h2>
+                <form id="form-agricultor">
+                    <div class="input-group">
+                        <input type="text" id="nombres" placeholder="Nombres" required>
+                        <input type="text" id="apellidos" placeholder="Apellidos" required>
+                        <input type="text" id="telefono" placeholder="Teléfono">
+                    </div>
+                    <button type="submit" id="btn-submit-agricultor" class="btn-guardar">Guardar Agricultor</button>
+                </form>
+            </section>
+            <section class="list-section">
+                <h2>Directorio de Agricultores</h2>
+                <div class="table-responsive">
+                    <table id="tabla-agricultores">
+                        <thead><tr><th>Nombres</th><th>Apellidos</th><th>Teléfono</th><th>Acciones</th></tr></thead>
+                        <tbody id="lista-agricultores"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= SECCIÓN PARCELAS ================= -->
+        <div id="sec-parcelas" class="pestania-contenido">
+            <section class="crud-section">
+                <h2 id="titulo-form-parcela">Registrar Nueva Parcela</h2>
+                <form id="form-parcela">
+                    <div class="input-group">
+                        <select id="par-agricultor" required>
+                            <option value="">Seleccione un Agricultor...</option>
+                        </select>
+                        <input type="text" id="par-nombre" placeholder="Nombre de Parcela (ej. Fundo San José)" required>
+                        <input type="number" step="0.01" id="par-hectareas" placeholder="Hectáreas (ej. 2.5)" required>
+                        <input type="text" id="par-ubicacion" placeholder="Ubicación/Sector">
+                    </div>
+                    <button type="submit" id="btn-submit-parcela" class="btn-guardar">Guardar Parcela</button>
+                </form>
+            </section>
+            <section class="list-section">
+                <h2>Listado de Parcelas</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>Propietario</th><th>Nombre Parcela</th><th>Hectáreas</th><th>Ubicación</th><th>Acciones</th></tr></thead>
+                        <tbody id="lista-parcelas"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= SECCIÓN CULTIVOS ================= -->
+        <div id="sec-cultivos" class="pestania-contenido">
+            <section class="crud-section">
+                <h2 id="titulo-form-cultivo">Registrar Nuevo Cultivo</h2>
+                <form id="form-cultivo">
+                    <div class="input-group">
+                        <input type="text" id="cul-nombre" placeholder="Nombre (ej. Manzana)" required>
+                        <input type="text" id="cul-variedad" placeholder="Variedad (ej. Delicia)" required>
+                    </div>
+                    <button type="submit" id="btn-submit-cultivo" class="btn-guardar">Guardar Cultivo</button>
+                </form>
+            </section>
+            <section class="list-section">
+                <h2>Catálogo de Cultivos</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>Nombre</th><th>Variedad</th><th>Acciones</th></tr></thead>
+                        <tbody id="lista-cultivos"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+        <!-- ================= SECCIÓN CAMPAÑAS ================= -->
+        <div id="sec-campanias" class="pestania-contenido">
+            <section class="crud-section">
+                <h2 id="titulo-form-campania">Registrar Nueva Campaña</h2>
+                <form id="form-campania">
+                    <div class="input-group">
+                        <select id="cam-parcela" required>
+                            <option value="">Seleccione Parcela...</option>
+                        </select>
+                        <select id="cam-cultivo" required>
+                            <option value="">Seleccione Cultivo...</option>
+                        </select>
+                        <input type="text" id="cam-nombre" placeholder="Nombre Campaña (ej. Campaña 2026-I)" required>
+                        <input type="date" id="cam-inicio" title="Fecha de Inicio" required>
+                        <input type="date" id="cam-fin" title="Fecha de Fin">
+                    </div>
+                    <button type="submit" id="btn-submit-campania" class="btn-guardar">Guardar Campaña</button>
+                </form>
+            </section>
+            <section class="list-section">
+                <h2>Listado de Campañas</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Campaña</th>
+                                <th>Parcela</th>
+                                <th>Cultivo</th>
+                                <th>Inicio</th>
+                                <th>Fin</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-campanias"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= SECCIÓN RIEGOS ================= -->
+        <div id="sec-riegos" class="pestania-contenido">
+            <section class="crud-section">
+                <h2 id="titulo-form-riego">Registrar Nuevo Riego</h2>
+                <form id="form-riego">
+                    <div class="input-group">
+                        <select id="rie-campania" required>
+                            <option value="">Seleccione Campaña...</option>
+                        </select>
+                        <input type="date" id="rie-fecha" title="Fecha de Riego" required>
+                        <input type="number" step="0.01" min="0.01" id="rie-cantidad" placeholder="Cantidad (m³)" required>
+                        <input type="text" id="rie-observacion" placeholder="Observación (Opcional)">
+                    </div>
+                    <button type="submit" id="btn-submit-riego" class="btn-guardar">Guardar Riego</button>
+                </form>
+            </section>
+            <section class="list-section">
+                <h2>Historial de Riegos</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Campaña</th>
+                                <th>Fecha</th>
+                                <th>Cantidad (m³)</th>
+                                <th>Observación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-riegos"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= SECCIÓN GASTOS ================= -->
+        <div id="sec-gastos" class="pestania-contenido">
+            <section class="crud-section">
+                <h2 id="titulo-form-gasto">Registrar Nuevo Gasto</h2>
+                <form id="form-gasto">
+                    <div class="input-group">
+                        <select id="gas-campania" required>
+                            <option value="">Seleccione Campaña...</option>
+                        </select>
+                        <input type="text" id="gas-concepto" placeholder="Concepto (ej. Fertilizante NPK)" required>
+                        <input type="date" id="gas-fecha" title="Fecha del Gasto" required>
+                        <input type="number" step="0.01" min="0" id="gas-monto" placeholder="Monto (S/)" required>
+                    </div>
+                    <button type="submit" id="btn-submit-gasto" class="btn-guardar">Guardar Gasto</button>
+                </form>
+            </section>
+            <section class="list-section">
+                <h2>Registro de Gastos</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Campaña</th>
+                                <th>Concepto</th>
+                                <th>Fecha</th>
+                                <th>Monto (S/)</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-gastos"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= SECCIÓN COSECHAS ================= -->
+        <div id="sec-cosechas" class="pestania-contenido">
+            <section class="crud-section">
+                <h2 id="titulo-form-cosecha">Registrar Nueva Cosecha</h2>
+                <form id="form-cosecha">
+                    <div class="input-group">
+                        <select id="cos-campania" required>
+                            <option value="">Seleccione Campaña...</option>
+                        </select>
+                        <input type="date" id="cos-fecha" title="Fecha de Cosecha" required>
+                        <input type="number" step="0.01" min="0.01" id="cos-cantidad" placeholder="Cantidad (kg)" required>
+                        <input type="text" id="cos-observacion" placeholder="Observación (Opcional)">
+                    </div>
+                    <button type="submit" id="btn-submit-cosecha" class="btn-guardar">Guardar Cosecha</button>
+                </form>
+            </section>
+            <section class="list-section">
+                <h2>Registro de Cosechas</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Campaña</th>
+                                <th>Fecha</th>
+                                <th>Cantidad (kg)</th>
+                                <th>Observación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-cosechas"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= SECCIÓN VENTAS ================= -->
+        <div id="sec-ventas" class="pestania-contenido">
+            <section class="crud-section">
+                <h2 id="titulo-form-venta">Registrar Nueva Venta</h2>
+                <form id="form-venta">
+                    <div class="input-group">
+                        <select id="ven-cosecha" required>
+                            <option value="">Seleccione Cosecha...</option>
+                        </select>
+                        <input type="date" id="ven-fecha" title="Fecha de Venta" required>
+                        <input type="number" step="0.01" min="0.01" id="ven-cantidad" placeholder="Cantidad vendida (kg)" required>
+                        <input type="number" step="0.01" min="0" id="ven-precio" placeholder="Precio Total (S/)" required>
+                        <input type="text" id="ven-comprador" placeholder="Comprador / Mercado" required>
+                    </div>
+                    <button type="submit" id="btn-submit-venta" class="btn-guardar">Guardar Venta</button>
+                </form>
+            </section>
+            <section class="list-section">
+                <h2>Historial de Ventas</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cosecha Origen</th>
+                                <th>Fecha Venta</th>
+                                <th>Cantidad (kg)</th>
+                                <th>Precio Total (S/)</th>
+                                <th>Comprador</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-ventas"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= SECCIÓN RENTABILIDAD (VISTA SQL) ================= -->
+        <div id="sec-rentabilidad" class="pestania-contenido">
+            <section class="list-section">
+                <h2>Reporte de Rentabilidad por Campaña</h2>
+                <p style="color: #555; margin-bottom: 15px;">Cálculo automático generado desde la base de datos cruzando inversiones (gastos) e ingresos (ventas).</p>
+                <div class="table-responsive">
+                    <table>
+                        <thead id="head-rentabilidad"></thead>
+                        <tbody id="lista-rentabilidad"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Conexión lógica -->
+    <script src="app.js"></script>
+</body>
+</html>
